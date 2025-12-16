@@ -22,7 +22,7 @@ const Campaigns: React.FC = () => {
       const mockCampaigns: Campaign[] = [
         {
           id: '1',
-          name: 'Welcome Series 2024',
+          name: 'Welcome Series 2025',
           description: 'Onboarding campaign for new customers',
           type: 'drip',
           channel: 'sms',
@@ -30,13 +30,13 @@ const Campaigns: React.FC = () => {
           targetAudience: {
             type: 'segment',
             criteria: [
-              { field: 'signup_date', operator: 'greater_than', value: '2024-01-01' }
+              { field: 'signup_date', operator: 'greater_than', value: '2025-09-21' }
             ],
             estimatedSize: 1250
           },
           schedule: {
             type: 'immediate',
-            timezone: 'America/New_York'
+            timezone: 'India/Mumbai'
           },
           status: 'running',
           statistics: {
@@ -52,8 +52,8 @@ const Campaigns: React.FC = () => {
             clickRate: 26.2,
             replyRate: 10.0
           },
-          createdAt: new Date('2024-01-15'),
-          updatedAt: new Date('2024-01-20'),
+          createdAt: new Date('2025-09-30'),
+          updatedAt: new Date('2025-10-20'),
           createdBy: 'user1'
         },
         {
@@ -72,7 +72,7 @@ const Campaigns: React.FC = () => {
           },
           schedule: {
             type: 'scheduled',
-            startDate: new Date('2024-01-22T10:00:00'),
+            startDate: new Date('2025-10-22T10:00:00'),
             timezone: 'America/New_York'
           },
           status: 'scheduled',

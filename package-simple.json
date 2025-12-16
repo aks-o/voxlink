@@ -1,0 +1,16 @@
+{
+  "name": "voxlink",
+  "version": "1.0.0",
+  "description": "VoxLink Virtual Phone Number Management System",
+  "main": "server-simple.js",
+  "scripts": {
+    "start": "node server-simple.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
+
