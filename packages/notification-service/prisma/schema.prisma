@@ -1,0 +1,264 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model NotificationTemplate {
+  id          String                 @id @default(uuid()) @db.Uuid
+  name        String                 @unique @db.VarChar(100)
+  type        NotificationType
+  channel     NotificationChannel
+  subject     String?                @db.VarChar(255)
+  content     String                 @db.Text
+  variables   String[]               @default([])
+  isActive    Boolean                @default(true) @map("is_active")
+  createdAt   DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  notifications Notification[]
+
+  @@map("notification_templates")
+}
+
+model NotificationPreference {
+  id                    String              @id @default(uuid()) @db.Uuid
+  userId                String              @unique @map("user_id") @db.Uuid
+  
+  // Channel preferences
+  emailEnabled          Boolean             @default(true) @map("email_enabled")
+  smsEnabled            Boolean             @default(true) @map("sms_enabled")
+  pushEnabled           Boolean             @default(true) @map("push_enabled")
+  webhookEnabled        Boolean             @default(false) @map("webhook_enabled")
+  
+  // Contact information
+  email                 String?             @db.VarChar(255)
+  phoneNumber           String?             @map("phone_number") @db.VarChar(20)
+  webhookUrl            String?             @map("webhook_url") @db.VarChar(500)
+  
+  // Notification type preferences
+  callNotifications     Boolean             @default(true) @map("call_notifications")
+  smsNotifications      Boolean             @default(true) @map("sms_notifications")
+  billingNotifications  Boolean             @default(true) @map("billing_notifications")
+  systemNotifications   Boolean             @default(true) @map("system_notifications")
+  portingNotifications  Boolean             @default(true) @map("porting_notifications")
+  
+  // Quiet hours
+  quietHoursEnabled     Boolean             @default(false) @map("quiet_hours_enabled")
+  quietHoursStart       String?             @map("quiet_hours_start") @db.VarChar(5) // HH:MM format
+  quietHoursEnd         String?             @map("quiet_hours_end") @db.VarChar(5)   // HH:MM format
+  quietHoursTimezone    String              @default("UTC") @map("quiet_hours_timezone") @db.VarChar(50)
+  
+  createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  notifications         Notification[]
+
+  @@index([userId])
+  @@map("notification_preferences")
+}
+
+model Notification {
+  id                    String                 @id @default(uuid()) @db.Uuid
+  userId                String                 @map("user_id") @db.Uuid
+  templateId            String?                @map("template_id") @db.Uuid
+  preferenceId          String?                @map("preference_id") @db.Uuid
+  
+  type                  NotificationType
+  channel               NotificationChannel
+  priority              NotificationPriority   @default(NORMAL)
+  
+  // Content
+  subject               String?                @db.VarChar(255)
+  content               String                 @db.Text
+  data                  Json                   @default("{}")
+  
+  // Delivery
+  status                NotificationStatus     @default(PENDING)
+  scheduledAt           DateTime?              @map("scheduled_at") @db.Timestamptz
+  sentAt                DateTime?              @map("sent_at") @db.Timestamptz
+  deliveredAt           DateTime?              @map("delivered_at") @db.Timestamptz
+  failedAt              DateTime?              @map("failed_at") @db.Timestamptz
+  
+  // Retry logic
+  retryCount            Int                    @default(0) @map("retry_count")
+  maxRetries            Int                    @default(3) @map("max_retries")
+  nextRetryAt           DateTime?              @map("next_retry_at") @db.Timestamptz
+  
+  // Error handling
+  errorMessage          String?                @map("error_message") @db.Text
+  errorCode             String?                @map("error_code") @db.VarChar(50)
+  
+  // External references
+  externalId            String?                @map("external_id") @db.VarChar(255)
+  externalStatus        String?                @map("external_status") @db.VarChar(50)
+  
+  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime               @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  template              NotificationTemplate?  @relation(fields: [templateId], references: [id])
+  preference            NotificationPreference? @relation(fields: [preferenceId], references: [id])
+  deliveryAttempts      NotificationDeliveryAttempt[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+  @@index([scheduledAt])
+  @@index([nextRetryAt])
+  @@map("notifications")
+}
+
+model NotificationDeliveryAttempt {
+  id             String             @id @default(uuid()) @db.Uuid
+  notificationId String             @map("notification_id") @db.Uuid
+  channel        NotificationChannel
+  status         DeliveryStatus
+  
+  attemptedAt    DateTime           @map("attempted_at") @db.Timestamptz
+  completedAt    DateTime?          @map("completed_at") @db.Timestamptz
+  
+  // Response details
+  responseCode   String?            @map("response_code") @db.VarChar(10)
+  responseBody   String?            @map("response_body") @db.Text
+  errorMessage   String?            @map("error_message") @db.Text
+  
+  // Provider details
+  providerId     String?            @map("provider_id") @db.VarChar(100)
+  providerRef    String?            @map("provider_ref") @db.VarChar(255)
+  
+  createdAt      DateTime           @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  notification   Notification       @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId])
+  @@index([status])
+  @@map("notification_delivery_attempts")
+}
+
+model NotificationEvent {
+  id          String              @id @default(uuid()) @db.Uuid
+  userId      String              @map("user_id") @db.Uuid
+  eventType   String              @map("event_type") @db.VarChar(100)
+  entityType  String              @map("entity_type") @db.VarChar(50)
+  entityId    String              @map("entity_id") @db.Uuid
+  
+  // Event data
+  eventData   Json                @map("event_data") @default("{}")
+  metadata    Json                @default("{}")
+  
+  // Processing
+  processed   Boolean             @default(false)
+  processedAt DateTime?           @map("processed_at") @db.Timestamptz
+  
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([processed])
+  @@index([createdAt])
+  @@map("notification_events")
+}
+
+model WebhookEndpoint {
+  id          String              @id @default(uuid()) @db.Uuid
+  userId      String              @map("user_id") @db.Uuid
+  name        String              @db.VarChar(100)
+  url         String              @db.VarChar(500)
+  secret      String?             @db.VarChar(255)
+  
+  // Configuration
+  isActive    Boolean             @default(true) @map("is_active")
+  events      String[]            @default([])
+  headers     Json                @default("{}")
+  
+  // Retry configuration
+  maxRetries  Int                 @default(3) @map("max_retries")
+  retryDelay  Int                 @default(5000) @map("retry_delay") // milliseconds
+  
+  // Statistics
+  totalSent   Int                 @default(0) @map("total_sent")
+  totalFailed Int                 @default(0) @map("total_failed")
+  lastUsedAt  DateTime?           @map("last_used_at") @db.Timestamptz
+  
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("webhook_endpoints")
+}
+
+// Enums
+enum NotificationType {
+  CALL_RECEIVED
+  CALL_MISSED
+  SMS_RECEIVED
+  VOICEMAIL_RECEIVED
+  NUMBER_ACTIVATED
+  NUMBER_SUSPENDED
+  BILLING_INVOICE
+  BILLING_PAYMENT_FAILED
+  BILLING_PAYMENT_SUCCESS
+  SYSTEM_MAINTENANCE
+  SYSTEM_OUTAGE
+  PORTING_STARTED
+  PORTING_COMPLETED
+  PORTING_FAILED
+  CONFIGURATION_CHANGED
+  USAGE_THRESHOLD
+  ACCOUNT_SUSPENDED
+
+  @@map("notification_type")
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  WEBHOOK
+  IN_APP
+
+  @@map("notification_channel")
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+
+  @@map("notification_priority")
+}
+
+enum NotificationStatus {
+  PENDING
+  SCHEDULED
+  SENT
+  DELIVERED
+  FAILED
+  CANCELLED
+
+  @@map("notification_status")
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+  REJECTED
+
+  @@map("delivery_status")
+}

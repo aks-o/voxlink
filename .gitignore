@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+*.env
+*.env.txt
+# 📖 real_estate.env.txt
+.env.twilio
+.env.production
+.env.development
+.env.example
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.sqlite
+*.db
+
+# Temporary files
+tmp/
+temp/
+
+# Docker
+.dockerignore
+
+# Prisma
+packages/*/prisma/migrations/
+!packages/*/prisma/migrations/.gitkeep

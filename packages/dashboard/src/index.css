@@ -1,0 +1,445 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import mobile-specific styles */
+@import './styles/mobile.css';
+
+/* Import navigation-specific styles */
+@import './styles/navigation.css';
+
+/* VoxLink Custom Styles */
+@layer base {
+  :root {
+    /* Corporate Color Variables for Performance */
+    --corporate-gray: #767676;
+    --corporate-text: #FFFFFF;
+    --corporate-text-secondary: #E5E7EB;
+    --corporate-hover: #6B7280;
+    --corporate-active: #4B5563;
+    
+    /* Brand Color Variables */
+    --voxlink-blue: #2563EB;
+    --link-teal: #0891B2;
+  }
+
+  html {
+    font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-light-gray text-charcoal;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  
+  * {
+    @apply border-gray-200;
+  }
+}
+
+@layer components {
+  /* VoxLink Button Styles */
+  .btn-primary {
+    @apply bg-voxlink-blue hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-charcoal font-medium py-2 px-4 rounded-lg border border-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2;
+  }
+  
+  .btn-success {
+    @apply bg-success-green hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-success-green focus:ring-offset-2;
+  }
+  
+  .btn-warning {
+    @apply bg-warning-amber hover:bg-amber-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-warning-amber focus:ring-offset-2;
+  }
+  
+  .btn-danger {
+    @apply bg-error-red hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-error-red focus:ring-offset-2;
+  }
+  
+  /* Corporate Button Variants */
+  .btn-corporate {
+    @apply bg-corporate-gray hover:bg-corporate-hover text-corporate-text font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2;
+  }
+  
+  .btn-corporate-secondary {
+    @apply bg-corporate-hover hover:bg-corporate-active text-corporate-text font-medium py-2 px-4 rounded-lg border border-corporate-hover transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2;
+  }
+  
+  /* Corporate Typography Utilities - These are defined in Tailwind config */
+
+  /* VoxLink Card Styles */
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  }
+  
+  .card-header {
+    @apply border-b border-gray-200 pb-4 mb-4;
+  }
+  
+  .card-title {
+    @apply text-corporate-large font-semibold text-charcoal;
+  }
+  
+  .card-subtitle {
+    @apply text-corporate-small text-slate mt-1;
+  }
+  
+  /* Corporate Card Variants */
+  .card-corporate {
+    @apply bg-corporate-gray rounded-lg shadow-sm border border-corporate-hover p-6;
+  }
+  
+  .card-corporate-header {
+    @apply border-b border-corporate-hover pb-4 mb-4;
+  }
+  
+  .card-corporate-title {
+    @apply text-corporate-large font-semibold text-corporate-text;
+  }
+  
+  .card-corporate-subtitle {
+    @apply text-corporate-small text-corporate-text-secondary mt-1;
+  }
+  
+  /* Accessibility-Enhanced Components */
+  .nav-item-accessible {
+    @apply flex items-center px-3 py-2 text-corporate-nav-primary font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2 focus:ring-offset-corporate-gray;
+  }
+  
+  .button-accessible {
+    @apply font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2 min-h-touch min-w-touch;
+  }
+  
+  .link-accessible {
+    @apply underline-offset-4 hover:underline focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2 focus:ring-offset-corporate-gray rounded;
+  }
+  
+  .interactive-corporate {
+    @apply transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2 focus:ring-offset-corporate-gray hover:bg-corporate-hover;
+  }
+  
+  /* Performance Optimized Classes */
+  .corporate-transition {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  
+  .corporate-focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2;
+  }
+  
+  .corporate-interactive {
+    @apply corporate-transition corporate-focus-ring hover:bg-corporate-hover;
+  }
+  
+  /* VoxLink Input Styles */
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:border-transparent transition-colors duration-200;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:border-transparent transition-colors duration-200;
+  }
+  
+  .input-error {
+    @apply border-error-red focus:ring-error-red;
+  }
+  
+  /* Corporate Input Variants */
+  .input-corporate {
+    @apply w-full px-3 py-2 bg-corporate-hover border border-corporate-active text-corporate-text placeholder-corporate-text-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:border-transparent transition-colors duration-200;
+  }
+  
+  .input-corporate-dark {
+    @apply w-full px-3 py-2 bg-corporate-active border border-corporate-hover text-corporate-text placeholder-corporate-text-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:border-transparent transition-colors duration-200;
+  }
+  
+  /* VoxLink Badge Styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-corporate-small font-medium;
+  }
+  
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-error {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  /* VoxLink Navigation Styles */
+  .nav-item {
+    @apply flex items-center px-3 py-2 text-corporate-nav-primary font-medium rounded-lg transition-colors duration-200;
+  }
+  
+  .nav-item-active {
+    @apply bg-voxlink-blue text-white;
+  }
+  
+  .nav-item-inactive {
+    @apply text-corporate-text-secondary hover:bg-corporate-hover hover:text-corporate-text;
+  }
+  
+  /* VoxLink Metric Styles */
+  .metric-card {
+    @apply card p-4;
+  }
+  
+  .metric-value {
+    @apply text-2xl font-bold text-charcoal;
+  }
+  
+  .metric-label {
+    @apply text-corporate-body text-slate mt-1;
+  }
+  
+  .metric-change {
+    @apply text-corporate-small font-medium mt-2;
+  }
+  
+  .metric-change-positive {
+    @apply text-success-green;
+  }
+  
+  .metric-change-negative {
+    @apply text-error-red;
+  }
+  
+  /* VoxLink Table Styles */
+  .table {
+    @apply w-full border-collapse;
+  }
+  
+  .table th {
+    @apply px-6 py-3 text-left text-corporate-small font-medium text-slate uppercase tracking-wider border-b border-gray-200;
+  }
+  
+  .table td {
+    @apply px-6 py-4 whitespace-nowrap text-corporate-body text-charcoal border-b border-gray-200;
+  }
+  
+  .table-row-hover {
+    @apply hover:bg-gray-50 transition-colors duration-150;
+  }
+  
+  /* VoxLink Loading Styles */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-6 w-6 border-b-2 border-voxlink-blue;
+  }
+  
+  .loading-pulse {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+  
+  /* VoxLink Status Indicators */
+  .status-online {
+    @apply w-2 h-2 bg-success-green rounded-full;
+  }
+  
+  .status-offline {
+    @apply w-2 h-2 bg-gray-400 rounded-full;
+  }
+  
+  .status-busy {
+    @apply w-2 h-2 bg-error-red rounded-full;
+  }
+  
+  .status-away {
+    @apply w-2 h-2 bg-warning-amber rounded-full;
+  }
+}
+
+@layer utilities {
+  /* VoxLink Custom Utilities */
+  .text-gradient {
+    @apply bg-gradient-to-r from-voxlink-blue to-link-teal bg-clip-text text-transparent;
+  }
+  
+  .shadow-voxlink {
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+  }
+  
+  .border-gradient {
+    border-image: linear-gradient(to right, #2563EB, #0891B2) 1;
+  }
+  
+  /* Corporate Utility Classes */
+  .corporate-bg {
+    @apply bg-corporate-gray;
+  }
+  
+  .corporate-text {
+    @apply text-corporate-text;
+  }
+  
+  .corporate-text-secondary {
+    @apply text-corporate-text-secondary;
+  }
+  
+  .corporate-hover {
+    @apply hover:bg-corporate-hover;
+  }
+  
+  .corporate-active {
+    @apply bg-corporate-active;
+  }
+  
+  .corporate-border {
+    @apply border-corporate-hover;
+  }
+  
+  .corporate-focus {
+    @apply focus:ring-2 focus:ring-voxlink-blue focus:border-transparent;
+  }
+  
+  .corporate-shadow {
+    box-shadow: 0 4px 6px -1px rgba(118, 118, 118, 0.1), 0 2px 4px -1px rgba(118, 118, 118, 0.06);
+  }
+  
+  /* Accessibility Utilities */
+  .focus-corporate {
+    @apply focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2 focus:ring-offset-corporate-gray;
+  }
+  
+  .focus-visible-corporate {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-voxlink-blue focus-visible:ring-offset-2 focus-visible:ring-offset-corporate-gray;
+  }
+  
+  .sr-only-corporate {
+    @apply sr-only;
+  }
+  
+  .high-contrast-text {
+    @apply text-corporate-text;
+    /* Ensures WCAG AA compliance on corporate gray background */
+  }
+  
+  .high-contrast-secondary {
+    @apply text-corporate-text-secondary;
+    /* Ensures WCAG AA compliance for secondary text */
+  }
+  
+  .keyboard-focus {
+    @apply focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2;
+  }
+  
+  .keyboard-focus-corporate {
+    @apply focus:outline-none focus:ring-2 focus:ring-voxlink-blue focus:ring-offset-2 focus:ring-offset-corporate-gray;
+  }
+  
+  /* Phone number formatting */
+  .phone-number {
+    @apply font-mono text-corporate-body;
+  }
+  
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 #F1F5F9;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-light-gray;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-slate rounded-full;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-charcoal;
+  }
+}
+
+/* Custom animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-break {
+    page-break-after: always;
+  }
+}
+
+/* Accessibility Media Queries */
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in-right,
+  .animate-slide-in-left,
+  .transition-all,
+  .transition-colors,
+  .transition-transform {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .corporate-text {
+    color: #FFFFFF !important;
+  }
+  
+  .corporate-text-secondary {
+    color: #E5E7EB !important;
+  }
+  
+  .corporate-bg {
+    background-color: #4B5563 !important;
+  }
+  
+  .corporate-hover:hover {
+    background-color: #374151 !important;
+  }
+}
+
+/* Dark mode support (future enhancement) */
+@media (prefers-color-scheme: dark) {
+  .dark-mode {
+    @apply bg-gray-900 text-gray-100;
+  }
+}

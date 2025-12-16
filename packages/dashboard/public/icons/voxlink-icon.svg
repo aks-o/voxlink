@@ -1,0 +1,33 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="256" fill="#2563EB"/>
+  
+  <!-- Inner Circle -->
+  <circle cx="256" cy="256" r="200" fill="#3B82F6"/>
+  
+  <!-- Microphone Icon -->
+  <g transform="translate(256, 256)">
+    <!-- Microphone Body -->
+    <rect x="-20" y="-60" width="40" height="80" rx="20" fill="white"/>
+    <rect x="-15" y="-55" width="30" height="70" rx="15" fill="#2563EB"/>
+    
+    <!-- Microphone Stand -->
+    <path d="M-40 20C-40 42.0914 -22.0914 60 0 60C22.0914 60 40 42.0914 40 20" stroke="white" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <line x1="0" y1="60" x2="0" y2="100" stroke="white" stroke-width="8" stroke-linecap="round"/>
+    <line x1="-30" y1="100" x2="30" y2="100" stroke="white" stroke-width="8" stroke-linecap="round"/>
+    
+    <!-- Sound Waves -->
+    <g opacity="0.8">
+      <path d="M60 -20C60 -31.0457 68.9543 -40 80 -40C91.0457 -40 100 -31.0457 100 -20V20C100 31.0457 91.0457 40 80 40C68.9543 40 60 31.0457 60 20V-20Z" fill="white"/>
+      <path d="M110 -40C110 -51.0457 118.954 -60 130 -60C141.046 -60 150 -51.0457 150 -40V40C150 51.0457 141.046 60 130 60C118.954 60 110 51.0457 110 40V-40Z" fill="white" opacity="0.7"/>
+      <path d="M160 -60C160 -71.0457 168.954 -80 180 -80C191.046 -80 200 -71.0457 200 -60V60C200 71.0457 191.046 80 180 80C168.954 80 160 71.0457 160 60V-60Z" fill="white" opacity="0.5"/>
+    </g>
+    
+    <!-- Left Side Sound Waves -->
+    <g opacity="0.8">
+      <path d="M-60 -20C-60 -31.0457 -68.9543 -40 -80 -40C-91.0457 -40 -100 -31.0457 -100 -20V20C-100 31.0457 -91.0457 40 -80 40C-68.9543 40 -60 31.0457 -60 20V-20Z" fill="white"/>
+      <path d="M-110 -40C-110 -51.0457 -118.954 -60 -130 -60C-141.046 -60 -150 -51.0457 -150 -40V40C-150 51.0457 -141.046 60 -130 60C-118.954 60 -110 51.0457 -110 40V-40Z" fill="white" opacity="0.7"/>
+      <path d="M-160 -60C-160 -71.0457 -168.954 -80 -180 -80C-191.046 -80 -200 -71.0457 -200 -60V60C-200 71.0457 -191.046 80 -180 80C-168.954 80 -160 71.0457 -160 60V-60Z" fill="white" opacity="0.5"/>
+    </g>
+  </g>
+</svg>

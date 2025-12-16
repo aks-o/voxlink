@@ -1,0 +1,42 @@
+{
+  "name": "@voxlink/dashboard",
+  "version": "1.0.0",
+  "description": "VoxLink Dashboard Frontend",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "@voxlink/shared": "file:../shared",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.2",
+    "@tanstack/react-query": "^4.32.0",
+    "@tanstack/react-query-devtools": "^4.32.0",
+    "axios": "^1.4.0",
+    "tailwindcss": "^3.3.3",
+    "react-hot-toast": "^2.4.1",
+    "lucide-react": "^0.263.1",
+    "chart.js": "^4.4.0",
+    "react-chartjs-2": "^5.2.0",
+    "date-fns": "^2.30.0",
+    "socket.io-client": "^4.7.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@types/jest": "^29.5.3",
+    "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.14",
+    "jest": "^29.6.1",
+    "jest-environment-jsdom": "^29.6.1",
+    "postcss": "^8.4.27",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.5"
+  }
+}

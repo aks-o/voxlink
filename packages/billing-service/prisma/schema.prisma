@@ -1,0 +1,249 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model BillingAccount {
+  id                     String        @id @default(uuid()) @db.Uuid
+  userId                 String        @unique @map("user_id") @db.Uuid
+  companyName            String?       @map("company_name") @db.VarChar(255)
+  billingAddress         Json          @map("billing_address")
+  taxId                  String?       @map("tax_id") @db.VarChar(50)
+  billingPeriod          BillingPeriod @default(MONTHLY) @map("billing_period")
+  nextBillingDate        DateTime      @map("next_billing_date") @db.Timestamptz
+  defaultPaymentMethodId String?       @map("default_payment_method_id") @db.Uuid
+  createdAt              DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt              DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  paymentMethods PaymentMethod[]
+  invoices       Invoice[]
+  usageEvents    UsageEvent[]
+
+  @@index([userId])
+  @@index([nextBillingDate])
+  @@map("billing_accounts")
+}
+
+model PaymentMethod {
+  id               String            @id @default(uuid()) @db.Uuid
+  billingAccountId String            @map("billing_account_id") @db.Uuid
+  type             PaymentMethodType
+  isDefault        Boolean           @default(false) @map("is_default")
+  
+  // Credit card fields
+  last4            String?           @map("last_4") @db.VarChar(4)
+  expiryMonth      Int?              @map("expiry_month")
+  expiryYear       Int?              @map("expiry_year")
+  brand            String?           @db.VarChar(50)
+  
+  // External payment processor fields
+  stripePaymentMethodId String?      @map("stripe_payment_method_id")
+  
+  isActive         Boolean           @default(true) @map("is_active")
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  billingAccount BillingAccount @relation(fields: [billingAccountId], references: [id], onDelete: Cascade)
+  payments       Payment[]
+
+  @@index([billingAccountId])
+  @@map("payment_methods")
+}
+
+model Invoice {
+  id               String        @id @default(uuid()) @db.Uuid
+  billingAccountId String        @map("billing_account_id") @db.Uuid
+  invoiceNumber    String        @unique @map("invoice_number") @db.VarChar(50)
+  status           InvoiceStatus @default(DRAFT)
+  
+  // Period
+  periodStart      DateTime      @map("period_start") @db.Timestamptz
+  periodEnd        DateTime      @map("period_end") @db.Timestamptz
+  
+  // Amounts (in cents)
+  subtotal         Int           @default(0)
+  tax              Int           @default(0)
+  total            Int           @default(0)
+  
+  dueDate          DateTime      @map("due_date") @db.Timestamptz
+  paidAt           DateTime?     @map("paid_at") @db.Timestamptz
+  
+  // PDF generation
+  pdfUrl           String?       @map("pdf_url")
+  pdfGeneratedAt   DateTime?     @map("pdf_generated_at") @db.Timestamptz
+  
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  billingAccount BillingAccount @relation(fields: [billingAccountId], references: [id], onDelete: Cascade)
+  items          InvoiceItem[]
+  payments       Payment[]
+
+  @@index([billingAccountId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([periodStart, periodEnd])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id              String   @id @default(uuid()) @db.Uuid
+  invoiceId       String   @map("invoice_id") @db.Uuid
+  description     String   @db.VarChar(500)
+  quantity        Int      @default(1)
+  unitPrice       Int      @map("unit_price") // in cents
+  total           Int      // in cents
+  
+  // Optional references
+  numberId        String?  @map("number_id") @db.Uuid
+  usageEventIds   String[] @map("usage_event_ids") @db.Uuid
+  
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+model Payment {
+  id              String        @id @default(uuid()) @db.Uuid
+  invoiceId       String        @map("invoice_id") @db.Uuid
+  paymentMethodId String        @map("payment_method_id") @db.Uuid
+  amount          Int           // in cents
+  status          PaymentStatus @default(PENDING)
+  
+  // External payment processor fields
+  stripePaymentIntentId String? @map("stripe_payment_intent_id")
+  transactionId         String? @map("transaction_id")
+  
+  failureReason   String?       @map("failure_reason") @db.Text
+  processedAt     DateTime?     @map("processed_at") @db.Timestamptz
+  
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  invoice       Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+
+  @@index([invoiceId])
+  @@index([status])
+  @@index([processedAt])
+  @@map("payments")
+}
+
+model UsageEvent {
+  id               String            @id @default(uuid()) @db.Uuid
+  billingAccountId String            @map("billing_account_id") @db.Uuid
+  numberId         String            @map("number_id") @db.Uuid
+  eventType        UsageEventType    @map("event_type")
+  
+  // Usage details
+  duration         Int?              // in seconds
+  quantity         Int               @default(1)
+  unitCost         Int               @map("unit_cost") // in cents per unit
+  totalCost        Int               @map("total_cost") // in cents
+  
+  // Call/SMS details
+  fromNumber       String?           @map("from_number")
+  toNumber         String?           @map("to_number")
+  
+  // Billing
+  isInvoiced       Boolean           @default(false) @map("is_invoiced")
+  invoiceItemId    String?           @map("invoice_item_id") @db.Uuid
+  
+  timestamp        DateTime          @db.Timestamptz
+  metadata         Json              @default("{}")
+  
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  billingAccount BillingAccount @relation(fields: [billingAccountId], references: [id], onDelete: Cascade)
+
+  @@index([billingAccountId, timestamp])
+  @@index([numberId, timestamp])
+  @@index([eventType, timestamp])
+  @@index([isInvoiced])
+  @@map("usage_events")
+}
+
+model BillingCycle {
+  id               String   @id @default(uuid()) @db.Uuid
+  billingAccountId String   @map("billing_account_id") @db.Uuid
+  periodStart      DateTime @map("period_start") @db.Timestamptz
+  periodEnd        DateTime @map("period_end") @db.Timestamptz
+  status           String   @db.VarChar(50) // 'pending', 'processing', 'completed', 'failed'
+  
+  invoiceId        String?  @map("invoice_id") @db.Uuid
+  
+  processedAt      DateTime? @map("processed_at") @db.Timestamptz
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([billingAccountId])
+  @@index([status])
+  @@index([periodStart, periodEnd])
+  @@map("billing_cycles")
+}
+
+// Enums
+enum BillingPeriod {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+
+  @@map("billing_period")
+}
+
+enum PaymentMethodType {
+  CREDIT_CARD
+  BANK_ACCOUNT
+  PAYPAL
+
+  @@map("payment_method_type")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+
+  @@map("invoice_status")
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+
+  @@map("payment_status")
+}
+
+enum UsageEventType {
+  INBOUND_CALL
+  OUTBOUND_CALL
+  SMS_RECEIVED
+  SMS_SENT
+  VOICEMAIL_RECEIVED
+  CALL_FORWARDED
+  MONTHLY_SUBSCRIPTION
+  SETUP_FEE
+
+  @@map("usage_event_type")
+}

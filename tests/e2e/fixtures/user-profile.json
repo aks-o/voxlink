@@ -1,0 +1,20 @@
+{
+  "data": {
+    "id": "1",
+    "email": "test@example.com",
+    "name": "Test User",
+    "role": "user",
+    "permissions": ["read", "write"],
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "preferences": {
+      "notifications": {
+        "email": true,
+        "sms": false,
+        "push": true
+      },
+      "theme": "light",
+      "language": "en"
+    }
+  }
+}

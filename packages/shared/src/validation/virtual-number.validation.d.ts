@@ -1,0 +1,13 @@
+import Joi from 'joi';
+export declare const numberStatusSchema: Joi.StringSchema<string>;
+export declare const numberFeatureSchema: Joi.StringSchema<string>;
+export declare const phoneNumberSchema: Joi.StringSchema<string>;
+export declare const callForwardingConfigSchema: Joi.ObjectSchema<any>;
+export declare const voicemailConfigSchema: Joi.ObjectSchema<any>;
+export declare const businessHoursConfigSchema: Joi.ObjectSchema<any>;
+export declare const notificationConfigSchema: Joi.ObjectSchema<any>;
+export declare const numberConfigurationSchema: Joi.ObjectSchema<any>;
+export declare const virtualNumberSchema: Joi.ObjectSchema<any>;
+export declare const validateVirtualNumber: (data: unknown) => Joi.ValidationResult<any>;
+export declare const validateNumberConfiguration: (data: unknown) => Joi.ValidationResult<any>;
+export declare const validateCallForwardingConfig: (data: unknown) => Joi.ValidationResult<any>;

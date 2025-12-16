@@ -1,0 +1,681 @@
+# 📖 CANTEEN MANAGEMENT SYSTEM - COMPLETE USER MANUAL
+
+## 🌐 System Overview
+
+**Application URL:** http://49.50.119.65/  
+**Admin Panel:** http://49.50.119.65/admin/  
+**System Name:** Corporate Canteen Management System  
+**Version:** 1.0.0  
+
+This comprehensive manual covers every feature and operation of the Canteen Management System, designed for corporate environments to manage food ordering, kitchen operations, inventory, and analytics.
+
+---
+
+## 👥 USER TYPES & ACCESS LEVELS
+
+### 🔐 Login Credentials
+
+| User Type | Username | Password | Access Level |
+|-----------|----------|----------|--------------|
+| **Employee** | employee1 | employee123 | Order food, manage wallet |
+| **Employee** | employee2 | employee123 | Order food, manage wallet |
+| **Kitchen Staff** | kitchen1 | kitchen123 | Kitchen operations |
+| **Manager** | manager1 | manager123 | Management & analytics |
+| **Admin** | admin | admin123 | Full system access |
+
+### 🎯 Role-Based Features
+
+**👩‍💻 Employees:**
+- Browse daily menu
+- Place food orders
+- Manage digital wallet
+- View order history
+- Track order status
+
+**👨‍🍳 Kitchen Staff:**
+- View incoming orders
+- Update order status
+- Manage kitchen queue
+- Track preparation times
+
+**👩‍💼 Managers:**
+- View analytics dashboard
+- Manage menu items
+- Track inventory
+- Monitor expenses
+- Generate reports
+
+**👨‍💼 Administrators:**
+- User management
+- System configuration
+- Full access to all features
+- Database management
+
+---
+
+## 🚀 GETTING STARTED
+
+### Step 1: Accessing the System
+1. Open your web browser
+2. Navigate to: **http://49.50.119.65/**
+3. You'll see the login screen
+
+### Step 2: First Login
+1. Enter your username and password
+2. Click "Sign In"
+3. You'll be redirected to your role-specific dashboard
+
+### Step 3: Navigation
+- **Sidebar Menu:** Main navigation on the left
+- **Header:** User info and logout on top
+- **Dashboard:** Central content area
+
+---
+
+## 👩‍💻 EMPLOYEE USER GUIDE
+
+### 🏠 Employee Dashboard
+After logging in as an employee, you'll see:
+- **Wallet Balance:** Current available funds
+- **Recent Orders:** Your last 3 orders
+- **Quick Actions:** Order food, view wallet
+- **Today's Menu:** Featured items
+
+### 🍽️ Ordering Food
+
+#### Step 1: Browse Menu
+1. Click **"Menu"** in the sidebar
+2. Browse available categories:
+   - Main Course
+   - Beverages  
+   - Snacks
+   - Desserts
+3. View item details:
+   - Name and description
+   - Price
+   - Dietary type (Veg/Non-Veg)
+   - Availability status
+
+#### Step 2: Add Items to Cart
+1. Click **"Add to Cart"** on desired items
+2. Adjust quantity using +/- buttons
+3. View cart summary in the top-right
+4. Cart shows:
+   - Item count
+   - Total amount
+   - Quick preview
+
+#### Step 3: Checkout Process
+1. Click the **Cart icon** or **"Checkout"**
+2. Review your order:
+   - Item list with quantities
+   - Individual prices
+   - Total amount
+3. Verify delivery details
+4. Choose payment method (Wallet)
+5. Click **"Place Order"**
+
+#### Step 4: Order Confirmation
+- Order confirmation screen appears
+- Order ID is generated
+- Estimated preparation time shown
+- Order status: "Pending"
+
+### 💰 Wallet Management
+
+#### Viewing Wallet Balance
+1. Click **"Wallet"** in sidebar
+2. See current balance prominently displayed
+3. View recent transactions
+
+#### Transaction History
+- **Date & Time:** When transaction occurred
+- **Type:** Debit/Credit
+- **Amount:** Transaction value
+- **Description:** What the transaction was for
+- **Balance:** Remaining balance after transaction
+
+#### Adding Funds (If Available)
+1. Click **"Add Funds"**
+2. Enter amount to add
+3. Select payment method
+4. Confirm transaction
+
+### 📋 Order History
+
+#### Viewing Past Orders
+1. Click **"Order History"** in sidebar
+2. See all your previous orders
+3. Filter by:
+   - Date range
+   - Order status
+   - Amount range
+
+#### Order Details
+Each order shows:
+- **Order ID:** Unique identifier
+- **Date & Time:** When order was placed
+- **Items:** What you ordered
+- **Total Amount:** Cost of order
+- **Status:** Current order status
+- **Payment Method:** How you paid
+
+#### Order Status Tracking
+- **Pending:** Order received, waiting for kitchen
+- **Confirmed:** Kitchen has accepted the order
+- **Preparing:** Food is being prepared
+- **Ready:** Food is ready for pickup
+- **Completed:** Order has been delivered/picked up
+- **Cancelled:** Order was cancelled
+
+### 🔔 Notifications
+- Real-time updates on order status
+- Wallet transaction notifications
+- System announcements
+- Low wallet balance alerts
+
+---
+
+## 👨‍🍳 KITCHEN STAFF GUIDE
+
+### 🏠 Kitchen Dashboard
+Kitchen staff see:
+- **Active Orders:** Orders needing attention
+- **Order Queue:** Upcoming orders
+- **Preparation Times:** Average cooking times
+- **Daily Statistics:** Orders completed today
+
+### 📱 Kitchen Display System
+
+#### Order Management
+1. **New Orders:** Appear automatically
+2. **Order Cards** show:
+   - Order ID and time
+   - Customer name
+   - Items with quantities
+   - Special instructions
+   - Order total
+
+#### Updating Order Status
+1. Click on an order card
+2. Update status using buttons:
+   - **"Accept Order"** → Changes to "Confirmed"
+   - **"Start Cooking"** → Changes to "Preparing"  
+   - **"Mark Ready"** → Changes to "Ready"
+   - **"Complete"** → Changes to "Completed"
+
+#### Order Priority
+- Orders are sorted by time (oldest first)
+- Urgent orders highlighted in red
+- Large orders marked with special indicator
+
+### ⏱️ Time Management
+- Track preparation times for each dish
+- Monitor kitchen efficiency
+- View average completion times
+
+### 📊 Kitchen Analytics
+- Daily order volume
+- Popular items
+- Peak hours
+- Preparation time trends
+
+---
+
+## 👩‍💼 MANAGER USER GUIDE
+
+### 🏠 Manager Dashboard
+Managers see comprehensive analytics:
+- **Revenue Overview:** Daily/weekly/monthly
+- **Order Statistics:** Volume and trends
+- **Popular Items:** Best-selling dishes
+- **Inventory Alerts:** Low stock warnings
+- **Financial Summary:** Profit/loss overview
+
+### 📊 Analytics & Reports
+
+#### Revenue Analytics
+1. Click **"Analytics"** in sidebar
+2. View revenue charts:
+   - Daily revenue trends
+   - Weekly comparisons
+   - Monthly summaries
+   - Year-over-year growth
+
+#### Order Analytics
+- **Order Volume:** Number of orders per period
+- **Average Order Value:** Revenue per order
+- **Peak Hours:** Busiest times of day
+- **Customer Preferences:** Most popular items
+
+#### Export Reports
+1. Click **"Export Reports"**
+2. Choose report type:
+   - Sales Report
+   - Inventory Report
+   - Customer Report
+   - Financial Report
+3. Select date range
+4. Choose format (PDF/Excel)
+5. Click **"Generate Report"**
+
+### 🍽️ Menu Management
+
+#### Adding New Menu Items
+1. Click **"Menu Planning"** in sidebar
+2. Click **"Add New Item"**
+3. Fill in details:
+   - Item name
+   - Description
+   - Price
+   - Category
+   - Dietary type (Veg/Non-Veg)
+   - Ingredients
+   - Preparation time
+4. Upload item image (optional)
+5. Set availability status
+6. Click **"Save Item"**
+
+#### Editing Existing Items
+1. Go to **"Menu Planning"**
+2. Find item to edit
+3. Click **"Edit"** button
+4. Modify details as needed
+5. Click **"Update Item"**
+
+#### Managing Categories
+1. Click **"Categories"** tab
+2. Add new categories or edit existing ones
+3. Set category descriptions
+4. Arrange category order
+
+#### Daily Menu Planning
+1. Click **"Daily Menu"**
+2. Select date
+3. Choose items to feature
+4. Set special prices (if any)
+5. Add daily specials
+6. Publish menu
+
+### 📦 Inventory Management
+
+#### Viewing Inventory
+1. Click **"Inventory"** in sidebar
+2. See all inventory items:
+   - Item name
+   - Current stock level
+   - Unit of measurement
+   - Reorder level
+   - Last updated
+
+#### Low Stock Alerts
+- Items below reorder level highlighted in red
+- Automatic notifications sent
+- Suggested reorder quantities shown
+
+#### Updating Stock Levels
+1. Find item to update
+2. Click **"Update Stock"**
+3. Enter new quantity
+4. Add notes (optional)
+5. Click **"Update"**
+
+#### Adding New Inventory Items
+1. Click **"Add New Item"**
+2. Enter item details:
+   - Name
+   - Category
+   - Unit (kg, pieces, liters)
+   - Current stock
+   - Reorder level
+   - Supplier information
+3. Click **"Save"**
+
+### 💰 Expense Management
+
+#### Recording Expenses
+1. Click **"Expenses"** in sidebar
+2. Click **"Add Expense"**
+3. Fill in details:
+   - Expense category
+   - Amount
+   - Date
+   - Description
+   - Vendor/supplier
+4. Upload receipt (optional)
+5. Click **"Save Expense"**
+
+#### Expense Categories
+- **Food & Ingredients**
+- **Equipment & Maintenance**
+- **Utilities**
+- **Staff Costs**
+- **Marketing**
+- **Other**
+
+#### Expense Reports
+- Monthly expense summaries
+- Category-wise breakdown
+- Vendor-wise analysis
+- Budget vs actual comparisons
+
+### 👥 User Management (Limited)
+- View employee list
+- See user activity
+- Monitor wallet balances
+- Generate user reports
+
+---
+
+## 👨‍💼 ADMINISTRATOR GUIDE
+
+### 🏠 Admin Dashboard
+Administrators have access to all features plus:
+- **System Health:** Server status and performance
+- **User Activity:** Login logs and usage statistics
+- **Database Statistics:** Storage and performance metrics
+- **Security Alerts:** Failed login attempts and security events
+
+### 👥 Complete User Management
+
+#### Adding New Users
+1. Click **"Users"** in sidebar
+2. Click **"Add New User"**
+3. Fill in user details:
+   - Username
+   - Email
+   - First & Last Name
+   - Role (Employee/Manager/Kitchen Staff/Admin)
+   - Password
+4. Set permissions
+5. Click **"Create User"**
+
+#### Managing Existing Users
+1. View user list
+2. Click on user to edit
+3. Modify details:
+   - Personal information
+   - Role and permissions
+   - Account status (Active/Inactive)
+   - Password reset
+4. Click **"Update User"**
+
+#### User Roles & Permissions
+- **Employee:** Basic ordering and wallet access
+- **Kitchen Staff:** Kitchen operations only
+- **Manager:** Management features and analytics
+- **Admin:** Full system access
+
+#### Bulk User Operations
+- Import users from CSV
+- Export user data
+- Bulk password reset
+- Mass role changes
+
+### ⚙️ System Configuration
+
+#### General Settings
+1. Click **"Settings"** in sidebar
+2. Configure:
+   - System name and logo
+   - Operating hours
+   - Currency settings
+   - Time zone
+   - Language preferences
+
+#### Payment Settings
+- Wallet configuration
+- Payment methods
+- Transaction limits
+- Refund policies
+
+#### Notification Settings
+- Email notifications
+- SMS alerts (if configured)
+- Push notifications
+- Notification templates
+
+### 🔒 Security Management
+
+#### Access Control
+- User login monitoring
+- Failed login attempt tracking
+- Session management
+- IP address restrictions
+
+#### Data Backup
+- Automatic backup scheduling
+- Manual backup creation
+- Backup restoration
+- Data export options
+
+#### Audit Logs
+- User activity logs
+- System changes
+- Financial transactions
+- Security events
+
+### 📊 Advanced Analytics
+
+#### System Performance
+- Response time monitoring
+- Database performance
+- User load statistics
+- Error rate tracking
+
+#### Business Intelligence
+- Revenue forecasting
+- Trend analysis
+- Customer behavior patterns
+- Operational efficiency metrics
+
+---
+
+## 🔧 COMMON OPERATIONS
+
+### 🔍 Search Functionality
+- **Global Search:** Available in header
+- **Menu Search:** Filter items by name or category
+- **User Search:** Find users quickly
+- **Order Search:** Locate specific orders
+
+### 📱 Mobile Responsiveness
+- Fully responsive design
+- Touch-friendly interface
+- Mobile-optimized layouts
+- Offline capability (limited)
+
+### 🔔 Notification System
+- **Real-time Updates:** Order status changes
+- **Email Notifications:** Important events
+- **In-app Alerts:** System messages
+- **Push Notifications:** Mobile alerts
+
+### 💾 Data Export
+- **PDF Reports:** Formatted documents
+- **Excel Exports:** Data analysis
+- **CSV Files:** Data import/export
+- **JSON API:** System integration
+
+---
+
+## 🆘 TROUBLESHOOTING
+
+### Common Issues & Solutions
+
+#### Login Problems
+**Issue:** Cannot login
+**Solutions:**
+1. Verify username and password
+2. Check caps lock
+3. Clear browser cache
+4. Try different browser
+5. Contact administrator
+
+#### Order Issues
+**Issue:** Cannot place order
+**Solutions:**
+1. Check wallet balance
+2. Verify menu item availability
+3. Clear cart and try again
+4. Refresh page
+5. Contact support
+
+#### Payment Problems
+**Issue:** Wallet transaction failed
+**Solutions:**
+1. Check available balance
+2. Verify transaction amount
+3. Try again after few minutes
+4. Contact administrator
+5. Check transaction history
+
+#### Performance Issues
+**Issue:** System running slowly
+**Solutions:**
+1. Clear browser cache
+2. Close unnecessary tabs
+3. Check internet connection
+4. Try different browser
+5. Contact IT support
+
+### 📞 Getting Help
+
+#### Self-Service Options
+1. **FAQ Section:** Common questions answered
+2. **Video Tutorials:** Step-by-step guides
+3. **User Manual:** This comprehensive guide
+4. **System Status:** Check for known issues
+
+#### Contact Support
+- **Email:** support@canteen.com
+- **Phone:** [Your support number]
+- **Help Desk:** Available during business hours
+- **Emergency Contact:** For critical issues
+
+---
+
+## 📋 BEST PRACTICES
+
+### For Employees
+1. **Check wallet balance** before ordering
+2. **Order in advance** during peak hours
+3. **Update preferences** for better recommendations
+4. **Report issues** promptly
+5. **Keep receipts** for expense claims
+
+### For Kitchen Staff
+1. **Update order status** promptly
+2. **Communicate delays** immediately
+3. **Maintain food quality** standards
+4. **Monitor preparation times**
+5. **Report equipment issues**
+
+### For Managers
+1. **Review analytics** regularly
+2. **Update menu** based on popularity
+3. **Monitor inventory** levels
+4. **Track expenses** closely
+5. **Plan for peak periods**
+
+### For Administrators
+1. **Regular backups** of system data
+2. **Monitor user activity** for security
+3. **Update system** regularly
+4. **Train new users** properly
+5. **Maintain documentation**
+
+---
+
+## 🔄 SYSTEM MAINTENANCE
+
+### Regular Tasks
+- **Daily:** Check system status and user activity
+- **Weekly:** Review analytics and reports
+- **Monthly:** Update menu and inventory
+- **Quarterly:** System backup and security review
+- **Annually:** User access review and system upgrade
+
+### Backup Procedures
+1. **Automatic Backups:** Daily at 2 AM
+2. **Manual Backups:** Before major changes
+3. **Backup Verification:** Weekly restore tests
+4. **Offsite Storage:** Cloud backup retention
+5. **Recovery Testing:** Monthly procedures
+
+---
+
+## 📈 FUTURE ENHANCEMENTS
+
+### Planned Features
+- **Mobile App:** Native iOS and Android apps
+- **QR Code Ordering:** Scan to order
+- **Integration:** ERP and accounting systems
+- **AI Recommendations:** Personalized menu suggestions
+- **Advanced Analytics:** Predictive insights
+
+### Feedback & Suggestions
+We welcome your feedback to improve the system:
+- **Feature Requests:** Submit through admin panel
+- **Bug Reports:** Use built-in reporting tool
+- **User Surveys:** Participate in quarterly surveys
+- **Beta Testing:** Join early access programs
+
+---
+
+## 📞 SUPPORT & CONTACT
+
+### Technical Support
+- **System Issues:** Contact IT department
+- **User Training:** Schedule training sessions
+- **Feature Requests:** Submit through proper channels
+- **Emergency Support:** 24/7 for critical issues
+
+### Business Support
+- **Menu Planning:** Consult with management
+- **Financial Queries:** Contact accounting department
+- **Policy Questions:** Refer to HR department
+- **Vendor Issues:** Contact procurement team
+
+---
+
+## 📄 APPENDICES
+
+### Appendix A: Keyboard Shortcuts
+- **Ctrl + /:** Open search
+- **Ctrl + M:** Go to menu
+- **Ctrl + W:** Open wallet
+- **Ctrl + O:** View orders
+- **Ctrl + L:** Logout
+
+### Appendix B: API Documentation
+For developers integrating with the system:
+- **Base URL:** http://49.50.119.65/api/
+- **Authentication:** JWT tokens
+- **Rate Limits:** 1000 requests/hour
+- **Documentation:** Available at /api/docs/
+
+### Appendix C: Database Schema
+Key tables and relationships:
+- **Users:** User accounts and profiles
+- **Orders:** Order information and status
+- **Menu Items:** Food items and categories
+- **Transactions:** Wallet and payment data
+- **Inventory:** Stock levels and management
+
+---
+
+## 🏁 CONCLUSION
+
+This Canteen Management System provides a comprehensive solution for corporate food service management. With role-based access, real-time updates, and powerful analytics, it streamlines operations from ordering to kitchen management to financial reporting.
+
+For additional support or questions not covered in this manual, please contact your system administrator or IT support team.
+
+**System Version:** 1.0.0  
+**Manual Version:** 1.0  
+**Last Updated:** October 2025  
+**Next Review:** January 2026  
+
+---
+
+*© 2025 Corporate Canteen Management System. All rights reserved.*

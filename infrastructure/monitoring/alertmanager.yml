@@ -1,0 +1,183 @@
+# Alertmanager configuration for VoxLink production
+
+global:
+  smtp_smarthost: 'smtp.sendgrid.net:587'
+  smtp_from: 'alerts@voxlink.com'
+  smtp_auth_username: 'apikey'
+  smtp_auth_password_file: '/etc/alertmanager/sendgrid-api-key'
+
+# Templates for alert notifications
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Routing configuration
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'default'
+  routes:
+    # Critical alerts go to on-call immediately
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 0s
+      repeat_interval: 5m
+
+    # Business alerts go to business teams
+    - match:
+        type: business
+      receiver: 'business-alerts'
+      group_interval: 30s
+      repeat_interval: 4h
+
+    # Infrastructure alerts
+    - match_re:
+        alertname: ^(HighCPUUtilization|HighMemoryUtilization|DiskSpaceLow)$
+      receiver: 'infrastructure-alerts'
+      repeat_interval: 30m
+
+    # Database alerts
+    - match_re:
+        service: ^(database|redis)$
+      receiver: 'database-alerts'
+      repeat_interval: 15m
+
+    # AI service alerts
+    - match:
+        team: ai
+      receiver: 'ai-team-alerts'
+      repeat_interval: 30m
+
+# Alert receivers
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'devops@voxlink.com'
+        subject: '[VoxLink] {{ .GroupLabels.alertname }} - {{ .Status | toUpper }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+          {{ end }}
+
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'oncall@voxlink.com'
+        subject: '[CRITICAL] VoxLink Production Alert'
+        body: |
+          🚨 CRITICAL ALERT 🚨
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Runbook: {{ .Annotations.runbook_url }}
+          
+          Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+          {{ end }}
+    slack_configs:
+      - api_url_file: '/etc/alertmanager/slack-webhook-url'
+        channel: '#critical-alerts'
+        title: 'VoxLink Critical Alert'
+        text: |
+          {{ range .Alerts }}
+          🚨 *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          
+          *Service:* {{ .Labels.service }}
+          *Severity:* {{ .Labels.severity }}
+          {{ if .Annotations.runbook_url }}*Runbook:* {{ .Annotations.runbook_url }}{{ end }}
+          {{ end }}
+        send_resolved: true
+
+  - name: 'business-alerts'
+    email_configs:
+      - to: 'business-ops@voxlink.com'
+        subject: '[Business Alert] {{ .GroupLabels.alertname }}'
+        body: |
+          📊 Business Metric Alert
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Team: {{ .Labels.team }}
+          {{ if .Annotations.runbook_url }}Runbook: {{ .Annotations.runbook_url }}{{ end }}
+          {{ end }}
+    slack_configs:
+      - api_url_file: '/etc/alertmanager/slack-webhook-url'
+        channel: '#business-alerts'
+        title: 'VoxLink Business Alert'
+        text: |
+          {{ range .Alerts }}
+          📊 *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          
+          *Team:* {{ .Labels.team }}
+          {{ if .Annotations.runbook_url }}*Runbook:* {{ .Annotations.runbook_url }}{{ end }}
+          {{ end }}
+
+  - name: 'infrastructure-alerts'
+    email_configs:
+      - to: 'infrastructure@voxlink.com'
+        subject: '[Infrastructure] {{ .GroupLabels.alertname }}'
+        body: |
+          🏗️ Infrastructure Alert
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Instance: {{ .Labels.instance }}
+          {{ end }}
+
+  - name: 'database-alerts'
+    email_configs:
+      - to: 'database-team@voxlink.com'
+        subject: '[Database] {{ .GroupLabels.alertname }}'
+        body: |
+          🗄️ Database Alert
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          {{ end }}
+
+  - name: 'ai-team-alerts'
+    email_configs:
+      - to: 'ai-team@voxlink.com'
+        subject: '[AI Service] {{ .GroupLabels.alertname }}'
+        body: |
+          🤖 AI Service Alert
+          
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ if .Annotations.runbook_url }}Runbook: {{ .Annotations.runbook_url }}{{ end }}
+          {{ end }}
+
+# Inhibition rules to prevent alert spam
+inhibit_rules:
+  # Inhibit any warning-level alerts if there are critical alerts for the same service
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['service', 'instance']
+
+  # Inhibit high CPU alerts if service is down
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match:
+      alertname: 'HighCPUUtilization'
+    equal: ['service', 'instance']
+
+  # Inhibit memory alerts if service is down
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match:
+      alertname: 'HighMemoryUtilization'
+    equal: ['service', 'instance']

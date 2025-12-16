@@ -1,0 +1,31 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="60" rx="8" fill="#ffffff"/>
+  
+  <!-- Icon Background -->
+  <rect x="8" y="8" width="44" height="44" rx="12" fill="#2563EB"/>
+  
+  <!-- Voice Wave Icon -->
+  <g transform="translate(16, 16)">
+    <!-- Microphone -->
+    <rect x="12" y="8" width="4" height="12" rx="2" fill="white"/>
+    <path d="M10 16C10 18.2091 11.7909 20 14 20C16.2091 20 18 18.2091 18 16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <line x1="14" y1="20" x2="14" y2="24" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <line x1="10" y1="24" x2="18" y2="24" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- Sound Waves -->
+    <path d="M20 12C20 10.8954 20.8954 10 22 10C23.1046 10 24 10.8954 24 12V16C24 17.1046 23.1046 18 22 18C20.8954 18 20 17.1046 20 16V12Z" fill="white" opacity="0.8"/>
+    <path d="M26 10C26 8.89543 26.8954 8 28 8C29.1046 8 30 8.89543 30 10V18C30 19.1046 29.1046 20 28 20C26.8954 20 26 19.1046 26 18V10Z" fill="white" opacity="0.6"/>
+    <path d="M32 6C32 4.89543 32.8954 4 34 4C35.1046 4 36 4.89543 36 6V22C36 23.1046 35.1046 24 34 24C32.8954 24 32 23.1046 32 22V6Z" fill="white" opacity="0.4"/>
+  </g>
+  
+  <!-- VoxLink Text -->
+  <g transform="translate(60, 12)">
+    <!-- Vox -->
+    <text x="0" y="20" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="24" font-weight="700" fill="#1F2937">Vox</text>
+    <!-- Link -->
+    <text x="50" y="20" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="24" font-weight="400" fill="#2563EB">Link</text>
+    <!-- Tagline -->
+    <text x="0" y="36" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="400" fill="#6B7280" letter-spacing="0.5px">AI-POWERED COMMUNICATION</text>
+  </g>
+</svg>

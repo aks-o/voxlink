@@ -1,0 +1,305 @@
+import { Router, Request, Response } from 'express';
+import { IndianPricingService } from '../../../billing-service/src/services/indian-pricing.service';
+import { 
+  IndianUsageMetrics, 
+  IndianPricingContext,
+  INDIAN_GST_CONFIG 
+} from '../../../shared/src/types/indian-pricing';
+import { auth } from '../middleware/auth';
+import { logger } from '../utils/logger';
+
+const router = Router();
+const indianPricingService = new IndianPricingService();
+
+/**
+ * GET /api/indian-pricing/tiers
+ * Get all available Indian pricing tiers
+ */
+router.get('/tiers', async (req: Request, res: Response) => {
+  try {
+    const tiers = indianPricingService.getAllPricingTiers();
+    
+    res.json({
+      success: true,
+      data: tiers.map(tier => ({
+        ...tier,
+        monthlyBaseFormatted: IndianPricingService.formatIndianCurrency(tier.monthlyBase),
+        outboundCallPerMinuteFormatted: IndianPricingService.formatIndianCurrency(tier.outboundCallPerMinute),
+        inboundCallPerMinuteFormatted: IndianPricingService.formatIndianCurrency(tier.inboundCallPerMinute),
+        smsOutboundFormatted: IndianPricingService.formatIndianCurrency(tier.smsOutbound),
+        smsInboundFormatted: IndianPricingService.formatIndianCurrency(tier.smsInbound)
+      }))
+    });
+  } catch (error) {
+    logger.error('Error fetching Indian pricing tiers', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch pricing tiers'
+    });
+  }
+});
+
+/**
+ * GET /api/indian-pricing/tiers/:tierName
+ * Get specific Indian pricing tier
+ */
+router.get('/tiers/:tierName', async (req: Request, res: Response) => {
+  try {
+    const { tierName } = req.params;
+    const tier = indianPricingService.getPricingTier(tierName.toUpperCase());
+    
+    if (!tier) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pricing tier not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        ...tier,
+        monthlyBaseFormatted: IndianPricingService.formatIndianCurrency(tier.monthlyBase),
+        outboundCallPerMinuteFormatted: IndianPricingService.formatIndianCurrency(tier.outboundCallPerMinute),
+        inboundCallPerMinuteFormatted: IndianPricingService.formatIndianCurrency(tier.inboundCallPerMinute),
+        smsOutboundFormatted: IndianPricingService.formatIndianCurrency(tier.smsOutbound),
+        smsInboundFormatted: IndianPricingService.formatIndianCurrency(tier.smsInbound)
+      }
+    });
+  } catch (error) {
+    logger.error('Error fetching Indian pricing tier', { error, tierName: req.params.tierName });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch pricing tier'
+    });
+  }
+});
+
+/**
+ * POST /api/indian-pricing/estimate
+ * Estimate monthly cost for given usage and tier
+ */
+router.post('/estimate', async (req: Request, res: Response) => {
+  try {
+    const { tierName, expectedUsage, userState } = req.body;
+    
+    if (!tierName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tier name is required'
+      });
+    }
+    
+    const calculation = await indianPricingService.estimateMonthlyCost(
+      tierName.toUpperCase(),
+      expectedUsage || {},
+      userState
+    );
+    
+    res.json({
+      success: true,
+      data: {
+        ...calculation,
+        baseCostFormatted: IndianPricingService.formatIndianCurrency(calculation.baseCost),
+        usageCostFormatted: IndianPricingService.formatIndianCurrency(calculation.usageCost),
+        discountAmountFormatted: IndianPricingService.formatIndianCurrency(calculation.discountAmount),
+        gstAmountFormatted: IndianPricingService.formatIndianCurrency(calculation.gstAmount),
+        totalCostFormatted: IndianPricingService.formatIndianCurrency(calculation.totalCost),
+        breakdown: {
+          ...calculation.breakdown,
+          monthlyBaseFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.monthlyBase),
+          callMinutesFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.callMinutes),
+          smsCountFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.smsCount),
+          voicemailCountFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.voicemailCount),
+          volumeDiscountFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.volumeDiscount),
+          gstFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.gst)
+        }
+      }
+    });
+  } catch (error) {
+    logger.error('Error estimating Indian pricing', { error, body: req.body });
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to estimate pricing'
+    });
+  }
+});
+
+/**
+ * POST /api/indian-pricing/calculate
+ * Calculate actual cost for authenticated user
+ */
+router.post('/calculate', auth, async (req: Request, res: Response) => {
+  try {
+    const { tierName, usage, userState } = req.body;
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'User authentication required'
+      });
+    }
+    
+    if (!tierName || !usage) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tier name and usage data are required'
+      });
+    }
+    
+    const tier = indianPricingService.getPricingTier(tierName.toUpperCase());
+    if (!tier) {
+      return res.status(404).json({
+        success: false,
+        error: 'Invalid pricing tier'
+      });
+    }
+    
+    const gstConfig = {
+      ...INDIAN_GST_CONFIG,
+      isInterstate: userState && userState !== 'KA' // Assuming company is in Karnataka
+    };
+    
+    const context: IndianPricingContext = {
+      userId,
+      tier,
+      usage: usage as IndianUsageMetrics,
+      gstConfig,
+      appliedDiscounts: [],
+      billingPeriod: {
+        startDate: new Date(req.body.billingPeriod?.startDate || Date.now()),
+        endDate: new Date(req.body.billingPeriod?.endDate || Date.now() + 30 * 24 * 60 * 60 * 1000)
+      }
+    };
+    
+    const calculation = await indianPricingService.calculateCost(context);
+    
+    res.json({
+      success: true,
+      data: {
+        ...calculation,
+        baseCostFormatted: IndianPricingService.formatIndianCurrency(calculation.baseCost),
+        usageCostFormatted: IndianPricingService.formatIndianCurrency(calculation.usageCost),
+        discountAmountFormatted: IndianPricingService.formatIndianCurrency(calculation.discountAmount),
+        gstAmountFormatted: IndianPricingService.formatIndianCurrency(calculation.gstAmount),
+        totalCostFormatted: IndianPricingService.formatIndianCurrency(calculation.totalCost),
+        breakdown: {
+          ...calculation.breakdown,
+          monthlyBaseFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.monthlyBase),
+          callMinutesFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.callMinutes),
+          smsCountFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.smsCount),
+          voicemailCountFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.voicemailCount),
+          volumeDiscountFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.volumeDiscount),
+          gstFormatted: IndianPricingService.formatIndianCurrency(calculation.breakdown.gst)
+        }
+      }
+    });
+  } catch (error) {
+    logger.error('Error calculating Indian pricing', { error, userId: req.user?.id });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to calculate pricing'
+    });
+  }
+});
+
+/**
+ * GET /api/indian-pricing/discounts
+ * Get available volume discounts
+ */
+router.get('/discounts', async (req: Request, res: Response) => {
+  try {
+    const { usage } = req.query;
+    
+    if (usage) {
+      // Get applicable discounts for specific usage
+      const usageMetrics = JSON.parse(usage as string) as IndianUsageMetrics;
+      const discounts = indianPricingService.getApplicableDiscounts(usageMetrics);
+      
+      res.json({
+        success: true,
+        data: discounts
+      });
+    } else {
+      // Get all available discounts
+      const { INDIAN_VOLUME_DISCOUNTS } = await import('../../../shared/src/types/indian-pricing');
+      
+      res.json({
+        success: true,
+        data: INDIAN_VOLUME_DISCOUNTS
+      });
+    }
+  } catch (error) {
+    logger.error('Error fetching Indian volume discounts', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch volume discounts'
+    });
+  }
+});
+
+/**
+ * GET /api/indian-pricing/comparison
+ * Compare pricing across different tiers for given usage
+ */
+router.get('/comparison', async (req: Request, res: Response) => {
+  try {
+    const { usage, userState } = req.query;
+    
+    const expectedUsage = usage ? JSON.parse(usage as string) : {
+      outboundMinutes: 200,
+      inboundMinutes: 100,
+      smsOutbound: 100,
+      smsInbound: 50,
+      voicemailMessages: 5
+    };
+    
+    const tiers = indianPricingService.getAllPricingTiers();
+    const comparisons = await Promise.all(
+      tiers.map(async (tier) => {
+        const calculation = await indianPricingService.estimateMonthlyCost(
+          tier.name,
+          expectedUsage,
+          userState as string
+        );
+        
+        return {
+          tier: {
+            ...tier,
+            monthlyBaseFormatted: IndianPricingService.formatIndianCurrency(tier.monthlyBase)
+          },
+          calculation: {
+            ...calculation,
+            totalCostFormatted: IndianPricingService.formatIndianCurrency(calculation.totalCost),
+            savingsVsHigherTier: 0 // Will be calculated below
+          }
+        };
+      })
+    );
+    
+    // Calculate savings compared to higher tiers
+    comparisons.sort((a, b) => a.calculation.totalCost - b.calculation.totalCost);
+    for (let i = 0; i < comparisons.length - 1; i++) {
+      const current = comparisons[i];
+      const next = comparisons[i + 1];
+      current.calculation.savingsVsHigherTier = next.calculation.totalCost - current.calculation.totalCost;
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        usage: expectedUsage,
+        comparisons
+      }
+    });
+  } catch (error) {
+    logger.error('Error generating Indian pricing comparison', { error });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate pricing comparison'
+    });
+  }
+});
+
+export default router;

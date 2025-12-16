@@ -1,0 +1,140 @@
+# Prometheus alert rules for VoxLink production
+
+groups:
+  - name: voxlink.rules
+    rules:
+      # High response time alert
+      - alert: HighResponseTime
+        expr: aws_applicationelb_target_response_time_average{load_balancer="voxlink-production-alb"} > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          service: api-gateway
+        annotations:
+          summary: "High response time detected"
+          description: "API Gateway response time is {{ $value }}s, which is above the 1s threshold"
+
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: rate(aws_applicationelb_httpcode_target_5xx_count_sum{load_balancer="voxlink-production-alb"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: api-gateway
+        annotations:
+          summary: "High 5XX error rate detected"
+          description: "5XX error rate is {{ $value }} errors/second"
+
+      # High CPU utilization
+      - alert: HighCPUUtilization
+        expr: aws_ecs_cpuutilization_average > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU utilization on {{ $labels.service_name }}"
+          description: "CPU utilization is {{ $value }}% on service {{ $labels.service_name }}"
+
+      # High memory utilization
+      - alert: HighMemoryUtilization
+        expr: aws_ecs_memoryutilization_average > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory utilization on {{ $labels.service_name }}"
+          description: "Memory utilization is {{ $value }}% on service {{ $labels.service_name }}"
+
+      # Database connection issues
+      - alert: HighDatabaseConnections
+        expr: aws_rds_database_connections_average{dbinstance_identifier="voxlink-production-db"} > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database connection count"
+          description: "Database has {{ $value }} active connections"
+
+      # Database CPU high
+      - alert: HighDatabaseCPU
+        expr: aws_rds_cpuutilization_average{dbinstance_identifier="voxlink-production-db"} > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database CPU utilization"
+          description: "Database CPU utilization is {{ $value }}%"
+
+      # Redis CPU high
+      - alert: HighRedisCPU
+        expr: aws_elasticache_cpuutilization_average{cache_cluster_id="voxlink-production-redis-001"} > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "High Redis CPU utilization"
+          description: "Redis CPU utilization is {{ $value }}%"
+
+      # Service down alert
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on instance {{ $labels.instance }} has been down for more than 1 minute"
+
+      # Disk space alert
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk space is below 10% on {{ $labels.instance }}"
+
+      # Business metric alerts
+      - alert: LowNumberPurchaseRate
+        expr: rate(voxlink_numbers_purchased_total[1h]) < 0.1
+        for: 30m
+        labels:
+          severity: warning
+          type: business
+        annotations:
+          summary: "Low number purchase rate"
+          description: "Number purchase rate is {{ $value }} per hour, which is below normal"
+
+      - alert: HighCallFailureRate
+        expr: rate(voxlink_calls_failed_total[5m]) / rate(voxlink_calls_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          type: business
+        annotations:
+          summary: "High call failure rate"
+          description: "Call failure rate is {{ $value | humanizePercentage }}"
+
+      # SSL certificate expiration
+      - alert: SSLCertificateExpiringSoon
+        expr: (ssl_certificate_expiry_seconds - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.instance }} expires in {{ $value }} days"
+
+      # Load balancer unhealthy targets
+      - alert: UnhealthyTargets
+        expr: aws_applicationelb_unhealthy_host_count_average > 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Unhealthy targets detected"
+          description: "{{ $value }} unhealthy targets detected in load balancer"

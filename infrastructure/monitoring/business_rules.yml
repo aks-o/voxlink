@@ -1,0 +1,134 @@
+# Business-specific alert rules for VoxLink
+
+groups:
+  - name: voxlink.business.rules
+    rules:
+      # Number purchase rate monitoring
+      - alert: LowNumberPurchaseRate
+        expr: rate(voxlink_numbers_purchased_total[1h]) < 0.1
+        for: 30m
+        labels:
+          severity: warning
+          type: business
+          team: sales
+        annotations:
+          summary: "Low number purchase rate detected"
+          description: "Number purchase rate is {{ $value | humanize }} per hour, which is below the expected threshold of 0.1/hour"
+          runbook_url: "https://runbooks.voxlink.com/business/low-purchase-rate"
+
+      # Call success rate monitoring
+      - alert: HighCallFailureRate
+        expr: rate(voxlink_calls_failed_total[5m]) / rate(voxlink_calls_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          type: business
+          team: operations
+        annotations:
+          summary: "High call failure rate detected"
+          description: "Call failure rate is {{ $value | humanizePercentage }}, exceeding the 5% threshold"
+          runbook_url: "https://runbooks.voxlink.com/business/high-call-failure"
+
+      # Revenue tracking
+      - alert: RevenueDropAlert
+        expr: rate(voxlink_revenue_total[1h]) < rate(voxlink_revenue_total[1h] offset 24h) * 0.8
+        for: 2h
+        labels:
+          severity: warning
+          type: business
+          team: finance
+        annotations:
+          summary: "Significant revenue drop detected"
+          description: "Hourly revenue is {{ $value | humanize }} which is 20% below the same time yesterday"
+          runbook_url: "https://runbooks.voxlink.com/business/revenue-drop"
+
+      # AI Agent performance
+      - alert: AIAgentHighErrorRate
+        expr: rate(voxlink_ai_agent_errors_total[5m]) / rate(voxlink_ai_agent_requests_total[5m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          type: business
+          team: ai
+        annotations:
+          summary: "AI Agent error rate is high"
+          description: "AI Agent error rate is {{ $value | humanizePercentage }}, exceeding 10% threshold"
+          runbook_url: "https://runbooks.voxlink.com/ai/high-error-rate"
+
+      # Customer satisfaction metrics
+      - alert: LowCustomerSatisfactionScore
+        expr: avg(voxlink_customer_satisfaction_score) < 4.0
+        for: 1h
+        labels:
+          severity: warning
+          type: business
+          team: customer-success
+        annotations:
+          summary: "Customer satisfaction score is low"
+          description: "Average customer satisfaction score is {{ $value | humanize }}, below the 4.0 threshold"
+          runbook_url: "https://runbooks.voxlink.com/business/low-satisfaction"
+
+      # Number inventory alerts
+      - alert: LowNumberInventory
+        expr: voxlink_available_numbers_total < 100
+        for: 15m
+        labels:
+          severity: warning
+          type: business
+          team: operations
+        annotations:
+          summary: "Low number inventory detected"
+          description: "Available number inventory is {{ $value }}, below the 100 number threshold"
+          runbook_url: "https://runbooks.voxlink.com/business/low-inventory"
+
+      # Billing system alerts
+      - alert: BillingProcessingDelay
+        expr: time() - voxlink_last_billing_run_timestamp > 86400
+        for: 1h
+        labels:
+          severity: critical
+          type: business
+          team: billing
+        annotations:
+          summary: "Billing processing is delayed"
+          description: "Last billing run was {{ $value | humanizeDuration }} ago, exceeding 24 hour threshold"
+          runbook_url: "https://runbooks.voxlink.com/billing/processing-delay"
+
+      # Message delivery rates
+      - alert: LowSMSDeliveryRate
+        expr: rate(voxlink_sms_delivered_total[5m]) / rate(voxlink_sms_sent_total[5m]) < 0.95
+        for: 10m
+        labels:
+          severity: warning
+          type: business
+          team: messaging
+        annotations:
+          summary: "SMS delivery rate is low"
+          description: "SMS delivery rate is {{ $value | humanizePercentage }}, below 95% threshold"
+          runbook_url: "https://runbooks.voxlink.com/messaging/low-delivery-rate"
+
+      # User engagement metrics
+      - alert: LowDailyActiveUsers
+        expr: voxlink_daily_active_users < voxlink_daily_active_users offset 7d * 0.9
+        for: 2h
+        labels:
+          severity: warning
+          type: business
+          team: product
+        annotations:
+          summary: "Daily active users are declining"
+          description: "Daily active users ({{ $value }}) are 10% below last week's count"
+          runbook_url: "https://runbooks.voxlink.com/business/declining-users"
+
+      # Integration health
+      - alert: ThirdPartyIntegrationFailure
+        expr: rate(voxlink_integration_failures_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          type: business
+          team: integrations
+        annotations:
+          summary: "Third-party integration failures detected"
+          description: "Integration failure rate is {{ $value }} failures/second"
+          runbook_url: "https://runbooks.voxlink.com/integrations/failures"

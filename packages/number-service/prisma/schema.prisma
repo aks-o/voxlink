@@ -1,0 +1,216 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model VirtualNumber {
+  id             String        @id @default(uuid()) @db.Uuid
+  phoneNumber    String        @unique @map("phone_number")
+  countryCode    String        @map("country_code") @db.VarChar(2)
+  areaCode       String        @map("area_code") @db.VarChar(5)
+  city           String        @db.VarChar(100)
+  region         String        @db.VarChar(100)
+  status         NumberStatus  @default(available)
+  ownerId        String?       @map("owner_id") @db.Uuid
+  purchaseDate   DateTime?     @map("purchase_date") @db.Timestamptz
+  activationDate DateTime?     @map("activation_date") @db.Timestamptz
+  monthlyRate    Int           @map("monthly_rate") // in cents
+  setupFee       Int           @map("setup_fee") // in cents
+  features       String[]      @default([])
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  configuration NumberConfiguration?
+  usageRecords  UsageRecord[]
+  reservations  NumberReservation[]
+
+  @@index([phoneNumber])
+  @@index([ownerId])
+  @@index([status])
+  @@index([countryCode, areaCode])
+  @@map("virtual_numbers")
+}
+
+model NumberConfiguration {
+  id                        String   @id @default(uuid()) @db.Uuid
+  numberId                  String   @unique @map("number_id") @db.Uuid
+  
+  // Call Forwarding
+  callForwardingEnabled     Boolean  @default(false) @map("call_forwarding_enabled")
+  primaryDestination        String?  @map("primary_destination")
+  failoverDestination       String?  @map("failover_destination")
+  businessHoursDestination  String?  @map("business_hours_destination")
+  afterHoursDestination     String?  @map("after_hours_destination")
+  forwardingTimeout         Int      @default(30) @map("forwarding_timeout")
+  
+  // Voicemail
+  voicemailEnabled          Boolean  @default(true) @map("voicemail_enabled")
+  customGreeting            String?  @map("custom_greeting")
+  emailNotifications        Boolean  @default(true) @map("email_notifications")
+  transcriptionEnabled      Boolean  @default(false) @map("transcription_enabled")
+  maxVoicemailDuration      Int      @default(180) @map("max_voicemail_duration")
+  
+  // Business Hours
+  timezone                  String   @default("UTC")
+  businessHoursSchedule     Json     @map("business_hours_schedule")
+  holidays                  DateTime[] @map("holidays") @db.Date
+  
+  // Notifications
+  callNotifications         Boolean  @default(true) @map("call_notifications")
+  smsNotifications          Boolean  @default(true) @map("sms_notifications")
+  webhookUrl                String?  @map("webhook_url")
+  notificationChannels      String[] @default(["email"]) @map("notification_channels")
+  
+  createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                 DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  virtualNumber VirtualNumber @relation(fields: [numberId], references: [id], onDelete: Cascade)
+
+  @@map("number_configurations")
+}
+
+model UsageRecord {
+  id         String          @id @default(uuid()) @db.Uuid
+  numberId   String          @map("number_id") @db.Uuid
+  eventType  UsageEventType  @map("event_type")
+  duration   Int?            // in seconds
+  cost       Int             // in cents
+  timestamp  DateTime        @db.Timestamptz
+  fromNumber String?         @map("from_number")
+  toNumber   String?         @map("to_number")
+  metadata   Json            @default("{}")
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  virtualNumber VirtualNumber @relation(fields: [numberId], references: [id], onDelete: Cascade)
+
+  @@index([numberId, timestamp])
+  @@index([eventType, timestamp])
+  @@map("usage_records")
+}
+
+model NumberReservation {
+  id          String   @id @default(uuid()) @db.Uuid
+  phoneNumber String   @map("phone_number")
+  userId      String   @map("user_id") @db.Uuid
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  virtualNumber VirtualNumber @relation(fields: [phoneNumber], references: [phoneNumber])
+
+  @@index([phoneNumber])
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("number_reservations")
+}
+
+model PortingRequest {
+  id                  String              @id @default(uuid()) @db.Uuid
+  userId              String              @map("user_id") @db.Uuid
+  currentNumber       String              @map("current_number")
+  currentCarrier      String              @map("current_carrier") @db.VarChar(100)
+  accountNumber       String              @map("account_number") @db.VarChar(50)
+  pin                 String              @db.VarChar(20)
+  authorizedName      String              @map("authorized_name") @db.VarChar(100)
+  
+  // Billing Address (stored as JSON for flexibility)
+  billingAddress      Json                @map("billing_address")
+  
+  status              PortingStatus       @default(submitted)
+  estimatedCompletion DateTime            @map("estimated_completion") @db.Timestamptz
+  actualCompletion    DateTime?           @map("actual_completion") @db.Timestamptz
+  notes               String?             @db.Text
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime            @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  documents     PortingDocument[]
+  statusHistory PortingStatusUpdate[]
+
+  @@index([userId])
+  @@index([currentNumber])
+  @@index([status])
+  @@map("porting_requests")
+}
+
+model PortingDocument {
+  id              String         @id @default(uuid()) @db.Uuid
+  portingRequestId String        @map("porting_request_id") @db.Uuid
+  type            DocumentType
+  filename        String         @db.VarChar(255)
+  url             String
+  uploadedAt      DateTime       @map("uploaded_at") @db.Timestamptz
+
+  // Relations
+  portingRequest PortingRequest @relation(fields: [portingRequestId], references: [id], onDelete: Cascade)
+
+  @@map("porting_documents")
+}
+
+model PortingStatusUpdate {
+  id              String         @id @default(uuid()) @db.Uuid
+  portingRequestId String        @map("porting_request_id") @db.Uuid
+  status          PortingStatus
+  message         String         @db.VarChar(500)
+  timestamp       DateTime       @db.Timestamptz
+  updatedBy       String         @map("updated_by") @db.VarChar(100)
+
+  // Relations
+  portingRequest PortingRequest @relation(fields: [portingRequestId], references: [id], onDelete: Cascade)
+
+  @@index([portingRequestId, timestamp])
+  @@map("porting_status_updates")
+}
+
+// Enums
+enum NumberStatus {
+  available
+  reserved
+  active
+  suspended
+  porting
+
+  @@map("number_status")
+}
+
+enum UsageEventType {
+  inbound_call
+  outbound_call
+  sms_received
+  sms_sent
+  voicemail_received
+  call_forwarded
+
+  @@map("usage_event_type")
+}
+
+enum PortingStatus {
+  submitted
+  processing
+  approved
+  completed
+  failed
+  cancelled
+
+  @@map("porting_status")
+}
+
+enum DocumentType {
+  bill
+  authorization
+  identification
+  other
+
+  @@map("document_type")
+}

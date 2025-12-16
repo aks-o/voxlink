@@ -1,0 +1,367 @@
+name: Automated Testing Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run performance tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18'
+  POSTGRES_VERSION: '15'
+  REDIS_VERSION: '7'
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run unit tests
+      run: npm test
+      env:
+        NODE_ENV: test
+
+    - name: Upload unit test coverage
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/lcov.info
+        flags: unit-tests
+        name: unit-test-coverage
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:${{ env.POSTGRES_VERSION }}
+        env:
+          POSTGRES_DB: voxlink_integration_test
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:${{ env.REDIS_VERSION }}-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build packages
+      run: npm run build
+
+    - name: Run database migrations
+      run: |
+        cd packages/number-service && npx prisma migrate deploy
+        cd ../billing-service && npx prisma migrate deploy
+        cd ../notification-service && npx prisma migrate deploy
+      env:
+        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/voxlink_integration_test
+
+    - name: Run integration tests
+      run: npm run test:integration
+      env:
+        NODE_ENV: integration_test
+        DATABASE_URL: postgresql://test_user:test_password@localhost:5432/voxlink_integration_test
+        REDIS_URL: redis://localhost:6379
+
+    - name: Upload integration test coverage
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/integration/lcov.info
+        flags: integration-tests
+        name: integration-test-coverage
+
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build packages
+      run: npm run build
+
+    - name: Run E2E tests
+      run: npm run test:e2e
+      env:
+        NODE_ENV: test
+
+    - name: Upload E2E test coverage
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage/e2e/lcov.info
+        flags: e2e-tests
+        name: e2e-test-coverage
+
+    - name: Upload E2E test artifacts
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: e2e-test-artifacts
+        path: |
+          tests/e2e/screenshots/
+          tests/e2e/videos/
+        retention-days: 7
+
+  contract-tests:
+    name: Contract Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build packages
+      run: npm run build
+
+    - name: Run contract tests
+      run: npm run test:contract
+      env:
+        NODE_ENV: test
+
+    - name: Upload contract test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: contract-test-results
+        path: coverage/contract/
+        retention-days: 30
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || contains(github.event.head_commit.message, '[perf-test]')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build packages
+      run: npm run build
+
+    - name: Run performance tests
+      run: npm run test:performance
+      env:
+        NODE_ENV: performance
+
+    - name: Upload performance test reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-test-reports
+        path: coverage/performance-reports/
+        retention-days: 90
+
+    - name: Comment performance results on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          // Read the latest performance report
+          const reportsDir = 'coverage/performance-reports';
+          const files = fs.readdirSync(reportsDir);
+          const latestReport = files
+            .filter(f => f.endsWith('.json'))
+            .sort()
+            .pop();
+          
+          if (latestReport) {
+            const reportPath = path.join(reportsDir, latestReport);
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            
+            const comment = `## 🚀 Performance Test Results
+            
+            **Performance Grade:** ${report.summary.performanceGrade}
+            **Average Response Time:** ${Math.round(report.summary.averageResponseTime)}ms
+            **Max Response Time:** ${Math.round(report.summary.maxResponseTime)}ms
+            **Total Tests:** ${report.summary.totalTests}
+            
+            ${report.summary.performanceGrade === 'A' ? '✅ Excellent performance!' : 
+              report.summary.performanceGrade === 'B' ? '👍 Good performance' :
+              report.summary.performanceGrade === 'C' ? '⚠️ Acceptable performance' :
+              '❌ Performance needs improvement'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      run: npm audit --audit-level=moderate
+
+    - name: Run dependency vulnerability scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium
+
+    - name: Run SAST scan
+      uses: github/super-linter@v4
+      env:
+        DEFAULT_BRANCH: main
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VALIDATE_TYPESCRIPT_ES: true
+        VALIDATE_JAVASCRIPT_ES: true
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests, contract-tests]
+    if: always()
+    
+    steps:
+    - name: Test Summary
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const results = {
+            'Unit Tests': '${{ needs.unit-tests.result }}',
+            'Integration Tests': '${{ needs.integration-tests.result }}',
+            'E2E Tests': '${{ needs.e2e-tests.result }}',
+            'Contract Tests': '${{ needs.contract-tests.result }}'
+          };
+          
+          let summary = '## 🧪 Test Results Summary\n\n';
+          let allPassed = true;
+          
+          for (const [testType, result] of Object.entries(results)) {
+            const icon = result === 'success' ? '✅' : result === 'failure' ? '❌' : '⚠️';
+            summary += `${icon} **${testType}:** ${result}\n`;
+            if (result !== 'success') allPassed = false;
+          }
+          
+          summary += `\n**Overall Status:** ${allPassed ? '✅ All tests passed!' : '❌ Some tests failed'}`;
+          
+          console.log(summary);
+          
+          // Set job summary
+          core.summary.addRaw(summary);
+          await core.summary.write();
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests, contract-tests]
+    if: github.ref == 'refs/heads/develop' && success()
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        # Add your deployment commands here
+        echo "✅ Deployment to staging completed"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests, contract-tests, performance-tests]
+    if: github.ref == 'refs/heads/main' && success()
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying to production environment..."
+        # Add your deployment commands here
+        echo "✅ Deployment to production completed"

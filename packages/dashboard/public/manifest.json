@@ -1,0 +1,123 @@
+{
+  "name": "VoxLink - AI-Powered Business Communication Platform",
+  "short_name": "VoxLink",
+  "description": "Comprehensive AI-powered voice communication platform with unified messaging, analytics, and advanced dialer capabilities",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563EB",
+  "orientation": "any",
+  "lang": "en-US",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/voxlink-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.svg",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "VoxLink Dashboard - Desktop View"
+    },
+    {
+      "src": "/screenshots/mobile-dashboard.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "VoxLink Dashboard - Mobile View"
+    }
+  ],
+  "categories": ["business", "communication", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View main dashboard with key metrics",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/shortcut-dashboard.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Inbox",
+      "short_name": "Messages",
+      "description": "Access unified inbox and messages",
+      "url": "/inbox",
+      "icons": [
+        {
+          "src": "/icons/shortcut-inbox.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "AI Agents",
+      "short_name": "AI Agents",
+      "description": "Manage AI voice agents",
+      "url": "/ai-voice-agent/agents",
+      "icons": [
+        {
+          "src": "/icons/shortcut-ai.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Call Logs",
+      "short_name": "Calls",
+      "description": "View call logs and recordings",
+      "url": "/call-logs",
+      "icons": [
+        {
+          "src": "/icons/shortcut-calls.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred",
+  "protocol_handlers": [
+    {
+      "protocol": "tel",
+      "url": "/dialer?number=%s"
+    },
+    {
+      "protocol": "sms",
+      "url": "/inbox/sms?number=%s"
+    }
+  ]
+}

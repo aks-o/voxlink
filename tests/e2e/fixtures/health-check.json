@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "timestamp": "2023-01-01T00:00:00.000Z",
+  "version": "1.0.0",
+  "services": {
+    "database": "healthy",
+    "redis": "healthy",
+    "external_apis": "healthy"
+  },
+  "uptime": 3600
+}
