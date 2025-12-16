@@ -2,12 +2,15 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy only what we need
+# Copy package.json and install deps
 COPY package.json ./
+RUN npm install --omit=dev
+
+# Copy server
 COPY server.js ./
 
-# Install production dependencies only
-RUN npm install --omit=dev
+# Copy built dashboard
+COPY packages/dashboard/dist ./dashboard
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
@@ -16,11 +19,9 @@ RUN addgroup -g 1001 -S nodejs && \
 
 USER voxlink
 
-# Railway uses PORT env var
 ENV PORT=8080
 ENV NODE_ENV=production
 
 EXPOSE 8080
 
 CMD ["node", "server.js"]
-
