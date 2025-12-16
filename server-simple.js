@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // Basic middleware
 app.use(express.json());
@@ -87,4 +87,6 @@ app.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+
 
