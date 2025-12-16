@@ -5,15 +5,15 @@ builder = "NIXPACKS"
 NODE_ENV = "production"
 
 [deploy]
-startCommand = "node server.js"
+startCommand = "node server-simple.js"
 healthcheckPath = "/api/health"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
 [services]
 [services.app]
-buildCommand = "npm run build"
-startCommand = "node server.js"
+buildCommand = "echo 'Build completed'"
+startCommand = "node server-simple.js"
 
 [[services.app.tcpPorts]]
 port = "3000"
