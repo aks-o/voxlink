@@ -1,104 +1,72 @@
 const express = require('express');
-const path = require('path');
-const compression = require('compression');
-const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
-// Middleware
-app.use(compression());
-app.use(cors());
+// Basic middleware
 app.use(express.json());
 
-// Serve static files from dashboard build
-const dashboardPath = path.join(__dirname, 'packages/dashboard/dist');
-app.use(express.static(dashboardPath));
-
-// API Routes
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
-    message: 'VoxLink API Gateway',
+    message: 'VoxLink is running',
     timestamp: new Date().toISOString(),
-    services: {
-      dashboard: 'available',
-      api: 'mock-mode'
-    }
+    environment: process.env.NODE_ENV || 'production'
   });
 });
 
+// API status endpoint
 app.get('/api/status', (req, res) => {
   res.json({
     status: 'running',
-    environment: process.env.NODE_ENV || 'development',
-    version: '1.0.0',
-    services: [
-      { name: 'api-gateway', status: 'mock' },
-      { name: 'number-service', status: 'mock' },
-      { name: 'billing-service', status: 'mock' },
-      { name: 'notification-service', status: 'mock' },
-      { name: 'ai-agent-service', status: 'mock' }
-    ]
+    services: ['dashboard', 'api-gateway'],
+    version: '2.0.0'
   });
 });
 
-// Mock API endpoints for development
-app.get('/api/numbers', (req, res) => {
-  res.json({
-    success: true,
-    data: [],
-    message: 'Number service not deployed - using mock data'
-  });
+// Root route
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>VoxLink - Virtual Phone Numbers</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #0f172a; color: white; }
+          .container { max-width: 600px; margin: 0 auto; }
+          h1 { color: #3b82f6; font-size: 3rem; }
+          .status { color: #22c55e; font-weight: bold; font-size: 1.2rem; }
+          a { color: #3b82f6; }
+          .card { background: #1e293b; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>🚀 VoxLink</h1>
+          <p class="status">✅ Server Running Successfully!</p>
+          <div class="card">
+            <p>VoxLink Virtual Phone Number Management System</p>
+            <p>Deployed on Railway</p>
+          </div>
+          <hr style="border-color: #334155;">
+          <p><strong>Health Check:</strong> <a href="/api/health">/api/health</a></p>
+          <p><strong>Status:</strong> <a href="/api/status">/api/status</a></p>
+        </div>
+      </body>
+    </html>
+  `);
 });
 
-app.get('/api/billing', (req, res) => {
-  res.json({
-    success: true,
-    data: [],
-    message: 'Billing service not deployed - using mock data'
-  });
-});
-
-app.get('/api/notifications', (req, res) => {
-  res.json({
-    success: true,
-    data: [],
-    message: 'Notification service not deployed - using mock data'
-  });
-});
-
-// Catch all handler: send back React's index.html file for client-side routing
+// Catch all - return the same page
 app.get('*', (req, res) => {
-  res.sendFile(path.join(dashboardPath, 'index.html'));
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.redirect('/');
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(500).json({
-    success: false,
-    message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-  });
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`VoxLink v2.0 running on port ${PORT}`);
 });
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Endpoint not found',
-    path: req.path
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`🚀 VoxLink server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🌐 Dashboard: http://localhost:${PORT}`);
-  console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️  Database: ${process.env.DATABASE_URL ? 'Connected' : 'Mock mode'}`);
-});
-
-
 

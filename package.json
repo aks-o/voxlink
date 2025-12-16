@@ -2,10 +2,10 @@
   "name": "voxlink-virtual-numbers",
   "version": "1.0.0",
   "description": "VoxLink Virtual Phone Number Management System",
-  "main": "server-simple.js",
+  "main": "server.js",
   "private": true,
   "scripts": {
-    "start": "node server-simple.js",
+    "start": "node server.js",
     "build": "echo 'Build completed - single app deployment'",
     "test": "echo 'Tests skipped - single app deployment'",
     "test:unit": "echo 'Unit tests skipped - deployment focused'",
