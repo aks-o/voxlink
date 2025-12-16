@@ -1,22 +1,23 @@
 FROM node:18-alpine
 
+# Force rebuild - v2
 WORKDIR /app
 
 COPY package.json ./
 
-RUN npm install --production
+RUN npm install --omit=dev
 
 COPY server-simple.js ./
-COPY index.js ./
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-RUN chown -R nextjs:nodejs /app
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S voxlink -u 1001 && \
+    chown -R voxlink:nodejs /app
 
-USER nextjs
+USER voxlink
 
 EXPOSE 8080
 
 ENV PORT=8080
+ENV NODE_ENV=production
 
 CMD ["node", "server-simple.js"]

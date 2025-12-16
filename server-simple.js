@@ -101,9 +101,10 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 VoxLink server running on port ${PORT}`);
-  console.log(`📊 Health check: http://0.0.0.0:${PORT}/api/health`);
-  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🚀 VoxLink v2.0 server running on port ${PORT}`);
+  console.log(`📊 Health check available at /api/health`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || 'production'}`);
+  console.log(`✅ Server ready - no dashboard dependency`);
 });
 
 
