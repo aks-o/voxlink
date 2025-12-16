@@ -1,0 +1,32 @@
+# Railway Railpack configuration for VoxLink
+buildCommand = "npm run build"
+installCommand = "npm install"
+startCommand = "node server.js"
+
+[phases.setup]
+nixPkgs = ["nodejs", "npm"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[phases.start]
+cmds = ["node server.js"]
+
+[phases.healthcheck]
+path = "/api/health"
+interval = "30s"
+timeout = "10s"
+retries = 3
+
+# Environment variables
+[env]
+NODE_ENV = "production"
+
+# Port configuration
+[[ports]]
+port = "3000"
+internal = true
+external = true

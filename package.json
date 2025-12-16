@@ -2,13 +2,13 @@
   "name": "voxlink-virtual-numbers",
   "version": "1.0.0",
   "description": "VoxLink Virtual Phone Number Management System",
-  "main": "server.js",
+  "main": "server-simple.js",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "start": "node server.js",
+    "start": "node server-simple.js",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "test:unit": "jest --config=jest.config.js",
