@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -26,21 +25,7 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-// Serve static files from dashboard if it exists
-const dashboardPath = path.join(__dirname, 'packages/dashboard/dist');
-const staticPath = path.join(__dirname, 'packages/dashboard');
-
-try {
-  // Try to serve built files first
-  app.use(express.static(dashboardPath));
-  console.log('Serving built dashboard from:', dashboardPath);
-} catch (error) {
-  // Fallback to source files
-  app.use(express.static(staticPath));
-  console.log('Serving source dashboard from:', staticPath);
-}
-
-// Catch all handler for SPA routing
+// Catch all handler
 app.get('*', (req, res) => {
   // For API routes, return 404
   if (req.path.startsWith('/api/')) {
@@ -50,36 +35,36 @@ app.get('*', (req, res) => {
     });
   }
 
-  // For everything else, serve the dashboard
-  try {
-    res.sendFile(path.join(dashboardPath, 'index.html'));
-  } catch (error) {
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>VoxLink - Coming Soon</title>
-          <style>
-            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-            .container { max-width: 600px; margin: 0 auto; }
-            h1 { color: #2563eb; }
-            .status { color: #059669; font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>🚀 VoxLink</h1>
-            <p class="status">Deployment in Progress</p>
-            <p>VoxLink microservices platform is being deployed to Railway.</p>
-            <p>Full dashboard and API will be available shortly!</p>
-            <hr>
-            <p><strong>Health Check:</strong> <a href="/api/health">/api/health</a></p>
-            <p><strong>Status:</strong> <a href="/api/status">/api/status</a></p>
+  // Serve welcome page
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>VoxLink - Virtual Phone Numbers</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #0f172a; color: white; }
+          .container { max-width: 600px; margin: 0 auto; }
+          h1 { color: #3b82f6; font-size: 3rem; }
+          .status { color: #22c55e; font-weight: bold; font-size: 1.2rem; }
+          a { color: #3b82f6; }
+          .card { background: #1e293b; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>🚀 VoxLink</h1>
+          <p class="status">✅ Server Running Successfully!</p>
+          <div class="card">
+            <p>VoxLink Virtual Phone Number Management System</p>
+            <p>Deployed on Railway</p>
           </div>
-        </body>
-      </html>
-    `);
-  }
+          <hr style="border-color: #334155;">
+          <p><strong>Health Check:</strong> <a href="/api/health">/api/health</a></p>
+          <p><strong>Status:</strong> <a href="/api/status">/api/status</a></p>
+        </div>
+      </body>
+    </html>
+  `);
 });
 
 app.listen(PORT, () => {
